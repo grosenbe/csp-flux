@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-sudo apt-get update
-sudo apt-get install ninja-build googletest valgrind clang
+apt-get install ninja-build googletest valgrind
 export CC=$(which clang)
 export CXX=$(which clang++)
 
