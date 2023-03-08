@@ -1,0 +1,19 @@
+name: CMake
+
+on: [push]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: fedora-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install prereqs
+      run: sudo scripts/install_build_prereqs.sh
+
+    - name: Build and test
+      run: scripts/ci_build.sh
