@@ -10,3 +10,5 @@ target_link_libraries(cspflux-test
   gtest_main
   cspflux)
 
+target_compile_options(cspflux-test PRIVATE
+  -Wall -Wextra -Wpedantic -Werror)
