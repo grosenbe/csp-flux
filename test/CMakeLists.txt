@@ -1,4 +1,5 @@
-add_executable(cspflux-test cspflux-test.cpp)
+add_executable(cspflux-test
+  cspflux-test.cpp)
 
 target_include_directories(cspflux-test PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/..)

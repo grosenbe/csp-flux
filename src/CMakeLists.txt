@@ -1,4 +1,9 @@
-set(Sources field.cpp heliostat.cpp facet.cpp tower.cpp)
+set(Sources
+  field.cpp
+  heliostat.cpp
+  facet.cpp
+  tower.cpp
+  utils.cpp)
 
 add_library(cspflux STATIC
   ${Sources})
