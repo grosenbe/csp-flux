@@ -17,9 +17,9 @@ bool CompareDoubles(double, double);
 
   class Matrix {
   public:
-    Matrix() {}
-    Matrix(array<array<double, 3>, 3> input) { data = input; }
-    Matrix(const Matrix &other) { data = other.data; }
+    Matrix() : inverse{nullptr} {}
+    Matrix(array<array<double, 3>, 3> input) : inverse{nullptr} { data = input; }
+    Matrix(const Matrix &other) : data{other.data}, inverse{nullptr} { }
 
     Matrix Transpose() const;
     Matrix& Inverse();

@@ -69,7 +69,7 @@ Matrix::Determinant() const {
            data[0][1] * (data[1][0] * data[2][2] - data[2][0] * data[1][2]) +
            data[0][2] * (data[1][0] * data[2][1] - data[2][0] * data[1][1]);
   } else {
-    array<array<double, 2>, 2> vals;
+    array<array<double, 2>, 2> vals{{{0, 0}, {0, 0}}};
     auto row = 0;
     auto col = 0;
     for (auto r = 0; r < 3; ++r) {
