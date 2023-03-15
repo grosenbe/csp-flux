@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+#include <memory>
+#include <utility>
 
 using std::array;
 
@@ -19,17 +21,24 @@ bool CompareDoubles(double, double);
     Matrix(array<array<double, 3>, 3> input) { data = input; }
     Matrix(const Matrix &other) { data = other.data; }
 
-    Matrix Transpose();
+    Matrix Transpose() const;
+    Matrix& Inverse();
 
     static Matrix Identity();
-
-    double Determinant();
 
     bool operator==(const Matrix&) const;
     const double& operator()(int, int) const;
     double& operator()(int, int);
+    Matrix& operator=(const Matrix &);
 
   private:
+    double Determinant() const;
+    double Cofactor(int, int) const;
+    double Minor(int, int) const;
+    Matrix Submatrix(int, int) const;
+
     array<array<double, 3>, 3> data;
+    std::unique_ptr<Matrix> inverse;
+    std::pair<int, int> minorMask{-1, -1};
   };
 }

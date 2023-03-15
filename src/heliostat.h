@@ -1,10 +1,10 @@
 #pragma once
 
-#include "facet.h"
-
 #include <array>
 #include <memory>
 #include <vector>
+
+#include "facet.h"
 
 using std::vector;
 
@@ -14,7 +14,7 @@ struct driveAngles {
 };
 
 class heliostat {
-public:
+ public:
   heliostat(double E, double N, double U);
 
   driveAngles driveAngles;
@@ -23,6 +23,6 @@ public:
 
   static double pedistalHeight;
 
-private:
+ private:
   [[maybe_unused]] std::array<double, 3> fieldCoords;
 };
