@@ -7,7 +7,7 @@
 #include "facet.h"
 
 using std::vector;
-
+namespace cspflux {
 struct driveAngles {
   double azimuth;
   double elevation;
@@ -16,13 +16,16 @@ struct driveAngles {
 class heliostat {
  public:
   heliostat(double E, double N, double U);
+  heliostat(const heliostat &);
 
-  driveAngles driveAngles;
+  driveAngles driveAngles{1000, 1000};
 
-  vector<std::unique_ptr<facet>> facets;
-
+  vector<facet> facets;
+  const std::array<double, 3> &
+  GetFieldCoords() { return fieldCoords; }
   static double pedistalHeight;
 
  private:
-  [[maybe_unused]] std::array<double, 3> fieldCoords;
+  const std::array<double, 3> fieldCoords;
 };
+}  // namespace cspflux
