@@ -14,31 +14,4 @@ constexpr double PI_4  = 0.78539816339744830962;
 constexpr double SQRT2 = 1.41421356237309504880;
 //clang-format on
 bool CompareDoubles(double, double);
-
-  class Matrix {
-  public:
-    Matrix() : inverse{nullptr} {}
-    Matrix(array<array<double, 3>, 3> input) : inverse{nullptr} { data = input; }
-    Matrix(const Matrix &other) : data{other.data}, inverse{nullptr} { }
-
-    Matrix Transpose() const;
-    Matrix& Inverse();
-
-    static Matrix Identity();
-
-    bool operator==(const Matrix&) const;
-    const double& operator()(int, int) const;
-    double& operator()(int, int);
-    Matrix& operator=(const Matrix &);
-
-  private:
-    double Determinant() const;
-    double Cofactor(int, int) const;
-    double Minor(int, int) const;
-    Matrix Submatrix(int, int) const;
-
-    array<array<double, 3>, 3> data;
-    std::unique_ptr<Matrix> inverse;
-    std::pair<int, int> minorMask{-1, -1};
-  };
 }
