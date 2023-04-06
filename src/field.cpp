@@ -20,16 +20,18 @@ field::field(const std::string &path) {
 
   std::string line;
   while (std::getline(ifs, line)) {
+    if (line[0] == '#') continue;
+
     stringstream ss(line);
-    std::array<string, 3> tokens;
-    auto index = 0u;
-    while (index < 3) {
-      std::getline(ss, tokens[index++], '\t');
+    std::array<string, 4> tokens;
+    for (auto index = 0u; index < 4; ++index) {
+      std::getline(ss, tokens[index], '\t');
     }
 
     heliostats.push_back(std::make_unique<heliostat>(stod(tokens[0]),
                                                      stod(tokens[1]),
-                                                     stod(tokens[2])));
+                                                     stod(tokens[2]),
+                                                     stod(tokens[3])));
   }
 }
 

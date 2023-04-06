@@ -28,8 +28,12 @@ TEST(heliostattests, field) {
   EXPECT_EQ(h1.GetFieldCoords()[0], 11.72784939);
   EXPECT_EQ(h1.GetFieldCoords()[1], 129.6183538);
   EXPECT_EQ(h1.GetFieldCoords()[2], 0);
+  EXPECT_EQ(h1.GetZOffset(), -1);
 
   EXPECT_EQ(h2.GetFieldCoords()[0], -23.69186385);
   EXPECT_EQ(h2.GetFieldCoords()[1], 1527.036711);
   EXPECT_EQ(h2.GetFieldCoords()[2], 0);
+  EXPECT_EQ(h2.GetZOffset(), 0);
+
+  // f.ComputeDriveAngles();
 }
