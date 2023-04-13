@@ -2,6 +2,7 @@ set(Sources
   field.cpp
   heliostat.cpp
   facet.cpp
+  limbDarkenedSunPointGenerator.cpp
   sunPointGenerator.cpp
   tower.cpp
   utils.cpp)

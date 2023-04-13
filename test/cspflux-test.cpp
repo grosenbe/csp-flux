@@ -4,8 +4,8 @@
 #include <eigen3/Eigen/Dense>
 
 #include "src/field.h"
+#include "src/limbDarkenedSunPointGenerator.h"
 #include "src/parameters.h"
-#include "src/sunPointGenerator.h"
 #include "src/utils.h"
 
 using namespace cspflux;
@@ -29,7 +29,7 @@ TEST(utilstests, CompareDoubles) {
 
 TEST(utilstests, SunPoints) {
   Vector3d sunCenter(0, 0, 1);
-  auto generator = sunPointGenerator(sunCenter);
+  auto generator = limbDarkenedSunPointGenerator(sunCenter);
 
   auto sunPoints = generator.GenerateSunPoints(1000000);
 
