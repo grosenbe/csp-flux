@@ -1,13 +1,17 @@
 #pragma once
 
 #include <array>
+#include <eigen3/Eigen/Dense>
 #include <memory>
 #include <vector>
 
 #include "facet.h"
 
+using Eigen::Vector3d;
 using std::vector;
+
 namespace cspflux {
+
 struct driveAngles {
   double azimuth;
   double elevation;
@@ -22,7 +26,7 @@ class heliostat {
 
   vector<facet> facets;
 
-  const std::array<double, 3> &
+  const Vector3d &
   GetFieldCoords() { return fieldCoords; }
 
   double
@@ -30,7 +34,7 @@ class heliostat {
   static double pedistalHeight;
 
  private:
-  const std::array<double, 3> fieldCoords;
+  const Vector3d fieldCoords;
   const double zOffset;
 };
 }  // namespace cspflux

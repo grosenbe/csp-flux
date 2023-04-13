@@ -1,17 +1,24 @@
 #include "field.h"
 
 #include <array>
+#include <cmath>
+#include <eigen3/Eigen/Dense>
 #include <fstream>
 #include <sstream>
 #include <string>
 
 #include "heliostat.h"
+#include "parameters.h"
 
+using Eigen::Vector3d;
 using std::ifstream;
 using std::string;
 using std::stringstream;
 
 using namespace cspflux;
+
+constexpr double
+pi() { return std::atan(1) * 4; }
 
 field::field(const std::string &path) {
   ifstream ifs(path, std::ifstream::in);
@@ -38,4 +45,42 @@ field::field(const std::string &path) {
 heliostat &
 field::GetHeliostat(size_t heliostatIdx) {
   return *(heliostats[heliostatIdx]);
+}
+
+void
+field::ComputeNominalDriveAngles(const Vector3d &sun, size_t startIdx, size_t endIdx) {
+  if (sun.norm() != 1) {
+    throw std::runtime_error("field::ComputeDriveAngles: pass a unit sun vector");
+  }
+  if (startIdx < 0) {
+    throw std::runtime_error("field::ComputeDriveAngles: start index less than zero");
+  }
+  if (endIdx >= heliostats.size()) {
+    throw std::runtime_error("field::ComputeDriveAngles: end index greater than number of heliostats");
+  }
+  if (startIdx > endIdx) {
+    throw std::runtime_error("field::ComputeDriveAngles: start index greater than end index");
+  }
+
+  for (size_t i = startIdx; i <= endIdx; ++i) {
+    auto &helio = heliostats[i];
+    auto e = helio->GetFieldCoords()[0];
+    auto n = helio->GetFieldCoords()[1];
+    auto fieldAz = std::atan2(n, e);
+
+    // aim point
+    Vector3d aimEnu = Vector3d(std::cos(fieldAz) * receiver.radius, std::sin(fieldAz) * receiver.radius, 0) + Vector3d(0, 0, tower::height + receiver::height * 0.5 + helio->GetZOffset());
+    Vector3d heliostatAzDrive = helio->GetFieldCoords() + Vector3d(0, 0, helio->pedistalHeight);
+    Vector3d heliostatToAimPoint = aimEnu - heliostatAzDrive;
+
+    Vector3d heliostatNormal = (heliostatToAimPoint.normalized() + sun).normalized();
+
+    double elAngle = std::atan2(heliostatNormal(2), std::sqrt(std::pow(heliostatNormal(0), 2) + std::pow(heliostatNormal(1), 2)));
+
+    double azAngle = std::atan2(heliostatNormal(0), heliostatNormal(1));
+    auto az = std::fmod(180 / pi() * azAngle, 360.0);
+    if (az < 0) az += 360;
+    helio->driveAngles.azimuth = az;
+    helio->driveAngles.elevation = std::fmod(180 / pi() * elAngle, 360.0);
+  }
 }

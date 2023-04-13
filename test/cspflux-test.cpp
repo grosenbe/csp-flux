@@ -66,5 +66,14 @@ TEST(heliostattests, field) {
   EXPECT_EQ(h2.GetFieldCoords()[2], 0);
   EXPECT_EQ(h2.GetZOffset(), 0);
 
-  // f.ComputeDriveAngles();
+  EXPECT_ANY_THROW(f.ComputeNominalDriveAngles(Vector3d(0, 0, 1), -1, 0));
+  EXPECT_ANY_THROW(f.ComputeNominalDriveAngles(Vector3d(0, 0, 1), 2, 1));
+  EXPECT_ANY_THROW(f.ComputeNominalDriveAngles(Vector3d(0, 0, 1), 0, 9332));
+  EXPECT_ANY_THROW(f.ComputeNominalDriveAngles(Vector3d(0, 1, 1), 0, 9332));
+
+  f.ComputeNominalDriveAngles(Vector3d(0, 0, 1), 0, 9331);
+  for (auto i = 0u; i < fieldSize; ++i) {
+    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.azimuth >= 0 && f.GetHeliostat(i).driveAngles.azimuth <= 360);
+    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.elevation >= -180 && f.GetHeliostat(i).driveAngles.elevation <= 180);
+  }
 }
