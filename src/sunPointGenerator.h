@@ -6,8 +6,7 @@ using Eigen::Vector3d;
 namespace cspflux {
 class sunPointGenerator {
  public:
-  sunPointGenerator(const Vector3d &);
-
+  sunPointGenerator() = delete;
   virtual std::vector<Vector3d> GenerateSunPoints(int) = 0;
 
  protected:
@@ -15,5 +14,7 @@ class sunPointGenerator {
   double slntRgax;
 
   std::vector<Vector3d> sunCoordinateBasis;
+
+  sunPointGenerator(const Vector3d &);
 };
 }  // namespace cspflux

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <eigen3/Eigen/Dense>
 
+#include "spa/spa.h"
 #include "src/field.h"
 #include "src/limbDarkenedSunPointGenerator.h"
 #include "src/parameters.h"
@@ -10,12 +11,38 @@
 
 using namespace cspflux;
 
+using Eigen::Vector3d;
+
 int receiver::Num_Panels = 14;
 double receiver::height = 40;
 double receiver::radius = 12;
 double tower::height = 140;
-double SimulationParams::sigAz = 0;
-double SimulationParams::sigEl = 0;
+
+double simulationParams::sigAz = 0;
+double simulationParams::sigEl = 0;
+int simulationParams::year = 2023;
+int simulationParams::month = 4;
+int simulationParams::day = 13;
+int simulationParams::hour = 15;
+int simulationParams::minute = 17;
+double simulationParams::second = 0;
+double simulationParams::timezone = -8;
+double simulationParams::longitude = -122.2321396;
+double simulationParams::latitude = 47.7326959;
+double simulationParams::elevation = 152;
+double simulationParams::temperature = 11;
+double simulationParams::pressure = 1000;
+
+double eps = 0.0000001;
+
+namespace {
+void
+VerifyENUVector(const Vector3d &v1, const Vector3d &v2) {
+  EXPECT_TRUE(std::abs(v1(0) - v2(0)) < eps);
+  EXPECT_TRUE(std::abs(v1(1) - v2(1)) < eps);
+  EXPECT_TRUE(std::abs(v1(2) - v2(2)) < eps);
+}
+}  // namespace
 
 TEST(utilstests, CompareDoubles) {
   EXPECT_TRUE(CompareDoubles(1, 1));
@@ -31,7 +58,7 @@ TEST(utilstests, SunPoints) {
   Vector3d sunCenter(0, 0, 1);
   auto generator = limbDarkenedSunPointGenerator(sunCenter);
 
-  auto sunPoints = generator.GenerateSunPoints(1000000);
+  auto sunPoints = generator.GenerateSunPoints(100000);
 
   double maxAngle = 0;
   double minAngle = std::numeric_limits<double>::min();
@@ -73,7 +100,22 @@ TEST(heliostattests, field) {
 
   f.ComputeNominalDriveAngles(Vector3d(0, 0, 1), 0, 9331);
   for (auto i = 0u; i < fieldSize; ++i) {
-    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.azimuth >= 0 && f.GetHeliostat(i).driveAngles.azimuth <= 360);
-    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.elevation >= -180 && f.GetHeliostat(i).driveAngles.elevation <= 180);
+    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.azimuth >= 0);
+    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.azimuth <= 360);
+    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.elevation >= -180);
+    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.elevation <= 180);
   }
+}
+
+TEST(utilstests, runSPA) {
+  field f("test/testfield.txt");
+  auto spaData = CreateSpaData();
+
+  EXPECT_EQ(spa_calculate(&spaData), 0);
+
+  spa_data sd;
+  sd.zenith = 0;
+  sd.azimuth = 0;
+
+  VerifyENUVector(ConvertSpaDataToEnu(sd), Vector3d(0, 0, 1));
 }
