@@ -6,4 +6,4 @@ export CXX=$(which clang++)
 rm -rf build/*
 cd build
 cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RELEASE ..
-ninja cspflux-test && valgrind test/cspflux-test
+ninja cspflux-test && valgrind --track-origins=yestest/cspflux-test
