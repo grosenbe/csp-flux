@@ -7,7 +7,7 @@ namespace cspflux {
 class sunPointGenerator {
  public:
   sunPointGenerator() = delete;
-  virtual std::vector<Vector3d> GenerateSunPoints(int) = 0;
+  virtual Vector3d GenerateSunPoint() = 0;
 
  protected:
   Vector3d sunCenter;

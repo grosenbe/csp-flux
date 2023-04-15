@@ -11,7 +11,7 @@ class limbDarkenedSunPointGenerator : public sunPointGenerator {
  public:
   limbDarkenedSunPointGenerator(const Vector3d &sunCenter, int seed = 0);
 
-  vector<Vector3d> GenerateSunPoints(int) override;
+  Vector3d GenerateSunPoint() override;
 
  private:
   std::uniform_real_distribution<> distribution;

@@ -56,11 +56,11 @@ TEST(sunpointgeneratortests, limbdarkened) {
   Vector3d sunCenter(0, 0, 1);
   auto generator = limbDarkenedSunPointGenerator(sunCenter);
 
-  auto sunPoints = generator.GenerateSunPoints(100000);
-
   double maxAngle = 0;
   double minAngle = std::numeric_limits<double>::min();
-  for (const auto &p : sunPoints) {
+  auto numPoints = 0u;
+  while (numPoints++ < 10000) {
+    auto p = generator.GenerateSunPoint();
     auto angle = std::acos(p.dot(sunCenter));
     if (angle > maxAngle)
       maxAngle = angle;
