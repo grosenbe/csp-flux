@@ -33,14 +33,12 @@ double simulationParams::elevation = 152;
 double simulationParams::temperature = 11;
 double simulationParams::pressure = 1000;
 
-double eps = 0.0000001;
-
 namespace {
 void
 VerifyENUVector(const Vector3d &v1, const Vector3d &v2) {
-  EXPECT_TRUE(std::abs(v1(0) - v2(0)) < eps);
-  EXPECT_TRUE(std::abs(v1(1) - v2(1)) < eps);
-  EXPECT_TRUE(std::abs(v1(2) - v2(2)) < eps);
+  EXPECT_TRUE(CompareDoubles(v1(0), v2(0)));
+  EXPECT_TRUE(CompareDoubles(v1(1), v2(1)));
+  EXPECT_TRUE(CompareDoubles(v1(2), v2(2)));
 }
 }  // namespace
 
@@ -54,7 +52,7 @@ TEST(utilstests, CompareDoubles) {
   EXPECT_FALSE(CompareDoubles(1, 2));
 }
 
-TEST(utilstests, SunPoints) {
+TEST(sunpointgeneratortests, limbdarkened) {
   Vector3d sunCenter(0, 0, 1);
   auto generator = limbDarkenedSunPointGenerator(sunCenter);
 
@@ -87,23 +85,25 @@ TEST(heliostattests, field) {
   EXPECT_EQ(h1.GetFieldCoords()[1], 129.6183538);
   EXPECT_EQ(h1.GetFieldCoords()[2], 0);
   EXPECT_EQ(h1.GetZOffset(), -1);
+  EXPECT_EQ(h1.GetFocalLength(), -1);
 
   EXPECT_EQ(h2.GetFieldCoords()[0], -23.69186385);
   EXPECT_EQ(h2.GetFieldCoords()[1], 1527.036711);
   EXPECT_EQ(h2.GetFieldCoords()[2], 0);
   EXPECT_EQ(h2.GetZOffset(), 0);
+  EXPECT_EQ(h2.GetFocalLength(), -1);
 
-  EXPECT_ANY_THROW(f.ComputeNominalDriveAngles(Vector3d(0, 0, 1), -1, 0));
-  EXPECT_ANY_THROW(f.ComputeNominalDriveAngles(Vector3d(0, 0, 1), 2, 1));
-  EXPECT_ANY_THROW(f.ComputeNominalDriveAngles(Vector3d(0, 0, 1), 0, 9332));
-  EXPECT_ANY_THROW(f.ComputeNominalDriveAngles(Vector3d(0, 1, 1), 0, 9332));
+  EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 0, 1), -1, 0));
+  EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 0, 1), 2, 1));
+  EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 0, 1), 0, 9332));
+  EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 1, 1), 0, 9332));
 
-  f.ComputeNominalDriveAngles(Vector3d(0, 0, 1), 0, 9331);
+  f.ComputeDriveAngles(Vector3d(0, 0, 1), 0, 9331);
   for (auto i = 0u; i < fieldSize; ++i) {
-    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.azimuth >= 0);
-    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.azimuth <= 360);
-    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.elevation >= -180);
-    EXPECT_TRUE(f.GetHeliostat(i).driveAngles.elevation <= 180);
+    EXPECT_TRUE(f.GetHeliostat(i).GetDriveAngles().azimuth >= 0);
+    EXPECT_TRUE(f.GetHeliostat(i).GetDriveAngles().azimuth <= 360);
+    EXPECT_TRUE(f.GetHeliostat(i).GetDriveAngles().elevation >= -180);
+    EXPECT_TRUE(f.GetHeliostat(i).GetDriveAngles().elevation <= 180);
   }
 }
 

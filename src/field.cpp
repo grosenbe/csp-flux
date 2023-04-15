@@ -9,6 +9,7 @@
 
 #include "heliostat.h"
 #include "parameters.h"
+#include "utils.h"
 
 using Eigen::Vector3d;
 using std::ifstream;
@@ -16,9 +17,6 @@ using std::string;
 using std::stringstream;
 
 using namespace cspflux;
-
-constexpr double
-pi() { return std::atan(1) * 4; }
 
 field::field(const std::string &path) {
   ifstream ifs(path, std::ifstream::in);
@@ -30,15 +28,16 @@ field::field(const std::string &path) {
     if (line[0] == '#') continue;
 
     stringstream ss(line);
-    std::array<string, 4> tokens;
-    for (auto index = 0u; index < 4; ++index) {
+    std::array<string, 5> tokens;
+    for (auto index = 0u; index < 5; ++index) {
       std::getline(ss, tokens[index], '\t');
     }
 
     heliostats.push_back(std::make_unique<heliostat>(stod(tokens[0]),
                                                      stod(tokens[1]),
                                                      stod(tokens[2]),
-                                                     stod(tokens[3])));
+                                                     stod(tokens[3]),
+                                                     stod(tokens[4])));
   }
 }
 
@@ -48,7 +47,7 @@ field::GetHeliostat(size_t heliostatIdx) {
 }
 
 void
-field::ComputeNominalDriveAngles(const Vector3d &sun, size_t startIdx, size_t endIdx) {
+field::ComputeDriveAngles(const Vector3d &sun, size_t startIdx, size_t endIdx) {
   if (sun.norm() != 1) {
     throw std::runtime_error("field::ComputeDriveAngles: pass a unit sun vector");
   }
@@ -78,9 +77,9 @@ field::ComputeNominalDriveAngles(const Vector3d &sun, size_t startIdx, size_t en
     double elAngle = std::atan2(heliostatNormal(2), std::sqrt(std::pow(heliostatNormal(0), 2) + std::pow(heliostatNormal(1), 2)));
 
     double azAngle = std::atan2(heliostatNormal(0), heliostatNormal(1));
-    auto az = std::fmod(180 / pi() * azAngle, 360.0);
+    auto az = std::fmod(180 / PI * azAngle, 360.0);
     if (az < 0) az += 360;
-    helio->driveAngles.azimuth = az;
-    helio->driveAngles.elevation = std::fmod(180 / pi() * elAngle, 360.0);
+    helio->SetAzimuth(az);
+    helio->SetElevation(std::fmod(180 / PI * elAngle, 360.0));
   }
 }

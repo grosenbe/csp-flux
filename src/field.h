@@ -32,7 +32,7 @@ class field {
   GetSize() { return heliostats.size(); }
 
   heliostat& GetHeliostat(size_t);
-  void ComputeNominalDriveAngles(const Vector3d&, size_t, size_t);
+  void ComputeDriveAngles(const Vector3d&, size_t, size_t);
 
   tower tower;
   receiver receiver;
