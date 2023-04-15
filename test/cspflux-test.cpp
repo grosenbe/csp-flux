@@ -11,7 +11,7 @@
 
 using namespace cspflux;
 
-using Eigen::Vector3d;
+using namespace Eigen;
 
 int receiver::Num_Panels = 14;
 double receiver::height = 40;
@@ -35,7 +35,7 @@ double simulationParams::pressure = 1000;
 
 namespace {
 void
-VerifyENUVector(const Vector3d &v1, const Vector3d &v2) {
+CompareVectors(const Vector3d &v1, const Vector3d &v2) {
   EXPECT_TRUE(CompareDoubles(v1(0), v2(0)));
   EXPECT_TRUE(CompareDoubles(v1(1), v2(1)));
   EXPECT_TRUE(CompareDoubles(v1(2), v2(2)));
@@ -117,5 +117,27 @@ TEST(utilstests, runSPA) {
   sd.zenith = 0;
   sd.azimuth = 0;
 
-  VerifyENUVector(ConvertSpaDataToEnu(sd), Vector3d(0, 0, 1));
+  CompareVectors(ConvertSpaDataToEnu(sd), Vector3d(0, 0, 1));
+}
+
+TEST(utilstests, rotation) {
+  EXPECT_ANY_THROW(RotateAboutVector(Vector3d(0, 1, 1), PI));
+
+  Matrix3d xRotMtx, yRotMtx, zRotMtx;
+
+  xRotMtx << 1, 0, 0,
+      0, 0, 1,
+      0, -1, 0;
+
+  yRotMtx << 0, 0, -1,
+      0, 1, 0,
+      1, 0, 0;
+
+  zRotMtx << 0, 1, 0,
+      -1, 0, 0,
+      0, 0, 1;
+
+  EXPECT_TRUE(RotateAboutVector(Vector3d(1, 0, 0), PI / 2).isApprox(xRotMtx));
+  EXPECT_TRUE(RotateAboutVector(Vector3d(0, 1, 0), PI / 2).isApprox(yRotMtx));
+  EXPECT_TRUE(RotateAboutVector(Vector3d(0, 0, 1), PI / 2).isApprox(zRotMtx));
 }

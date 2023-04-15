@@ -15,4 +15,6 @@ constexpr double SQRT2 = 1.41421356237309504880;
   bool CompareDoubles(double, double);
   spa_data CreateSpaData();
   Eigen::Vector3d ConvertSpaDataToEnu(const spa_data&);
+
+  Eigen::Matrix3d RotateAboutVector(const Eigen::Vector3d &, double);
 }
