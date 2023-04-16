@@ -66,8 +66,7 @@ field::ComputeDriveAngles(const Vector3d &sun, size_t startIdx, size_t endIdx) {
     auto n = helio->GetFieldCoords()[1];
     auto fieldAz = std::atan2(n, e);
 
-    // aim point
-    auto aimEnu = Vector3d(std::cos(fieldAz) * receiver.radius, std::sin(fieldAz) * receiver.radius, 0) + Vector3d(0, 0, tower::height + receiver::height * 0.5 + helio->GetZOffset());
+    auto aimEnu = Vector3d(std::cos(fieldAz) * receiver.radius, std::sin(fieldAz) * receiver.radius, 0) + Vector3d(0, 0, tower::height + receiver::height * 0.5 + helio->GetAimOffset());
     auto heliostatAzDrive = helio->GetFieldCoords() + Vector3d(0, 0, helio->pedistalHeight);
     auto heliostatToAimPoint = aimEnu - heliostatAzDrive;
 
@@ -80,5 +79,10 @@ field::ComputeDriveAngles(const Vector3d &sun, size_t startIdx, size_t endIdx) {
     if (az < 0) az += 360;
     helio->SetAzimuth(az);
     helio->SetElevation(std::fmod(180 / PI * elAngle, 360.0));
+
+    auto azRot = RotateAboutVector(Vector3d(0, 0, 1), helio->GetDriveAngles().azimuth * PI / 180);
+    auto rotatedElAxis = azRot * Vector3d(1, 0, 0);
+    auto elRot = RotateAboutVector(rotatedElAxis, -helio->GetDriveAngles().elevation * PI / 180);
+    helio->SetHeliostatToEnuTransform(elRot * azRot);
   }
 }

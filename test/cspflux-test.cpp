@@ -84,26 +84,29 @@ TEST(heliostattests, field) {
   EXPECT_EQ(h1.GetFieldCoords()[0], 11.72784939);
   EXPECT_EQ(h1.GetFieldCoords()[1], 129.6183538);
   EXPECT_EQ(h1.GetFieldCoords()[2], 0);
-  EXPECT_EQ(h1.GetZOffset(), -1);
+  EXPECT_EQ(h1.GetAimOffset(), -1);
   EXPECT_EQ(h1.GetFocalLength(), -1);
+  EXPECT_ANY_THROW(h1.GetHeliostatToEnuTransform());
 
   EXPECT_EQ(h2.GetFieldCoords()[0], -23.69186385);
   EXPECT_EQ(h2.GetFieldCoords()[1], 1527.036711);
   EXPECT_EQ(h2.GetFieldCoords()[2], 0);
-  EXPECT_EQ(h2.GetZOffset(), 0);
+  EXPECT_EQ(h2.GetAimOffset(), 0);
   EXPECT_EQ(h2.GetFocalLength(), -1);
+  EXPECT_ANY_THROW(h2.GetHeliostatToEnuTransform());
 
   EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 0, 1), -1, 0));
   EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 0, 1), 2, 1));
   EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 0, 1), 0, 9332));
   EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 1, 1), 0, 9332));
 
-  f.ComputeDriveAngles(Vector3d(0, 0, 1), 0, 9331);
+  f.ComputeDriveAngles(Vector3d(0, 0, 1), 0, f.GetSize() - 1);
   for (auto i = 0u; i < fieldSize; ++i) {
     EXPECT_TRUE(f.GetHeliostat(i).GetDriveAngles().azimuth >= 0);
     EXPECT_TRUE(f.GetHeliostat(i).GetDriveAngles().azimuth <= 360);
     EXPECT_TRUE(f.GetHeliostat(i).GetDriveAngles().elevation >= -180);
     EXPECT_TRUE(f.GetHeliostat(i).GetDriveAngles().elevation <= 180);
+    f.GetHeliostat(i).GetHeliostatToEnuTransform();
   }
 }
 
@@ -121,23 +124,25 @@ TEST(utilstests, runSPA) {
 }
 
 TEST(utilstests, rotation) {
-  EXPECT_ANY_THROW(RotateAboutVector(Vector3d(0, 1, 1), PI));
+  for (int i = 0; i < 15; ++i) {
+    auto angle = i / 15.0 * 2 * PI;
 
-  Matrix3d xRotMtx, yRotMtx, zRotMtx;
+    Matrix3d xRotMtx, yRotMtx, zRotMtx;
 
-  xRotMtx << 1, 0, 0,
-      0, 0, 1,
-      0, -1, 0;
+    xRotMtx << 1, 0, 0,
+        0, std::cos(angle), std::sin(angle),
+        0, -std::sin(angle), std::cos(angle);
 
-  yRotMtx << 0, 0, -1,
-      0, 1, 0,
-      1, 0, 0;
+    yRotMtx << std::cos(angle), 0, -std::sin(angle),
+        0, 1, 0,
+        std::sin(angle), 0, std::cos(angle);
 
-  zRotMtx << 0, 1, 0,
-      -1, 0, 0,
-      0, 0, 1;
+    zRotMtx << std::cos(angle), std::sin(angle), 0,
+        -std::sin(angle), std::cos(angle), 0,
+        0, 0, 1;
 
-  EXPECT_TRUE(RotateAboutVector(Vector3d(1, 0, 0), PI / 2).isApprox(xRotMtx));
-  EXPECT_TRUE(RotateAboutVector(Vector3d(0, 1, 0), PI / 2).isApprox(yRotMtx));
-  EXPECT_TRUE(RotateAboutVector(Vector3d(0, 0, 1), PI / 2).isApprox(zRotMtx));
+    EXPECT_TRUE(RotateAboutVector(Vector3d(1, 0, 0), angle).isApprox(xRotMtx));
+    EXPECT_TRUE(RotateAboutVector(Vector3d(0, 1, 0), angle).isApprox(yRotMtx));
+    EXPECT_TRUE(RotateAboutVector(Vector3d(0, 0, 1), angle).isApprox(zRotMtx));
+  }
 }

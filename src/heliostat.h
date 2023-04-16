@@ -7,7 +7,7 @@
 
 #include "facet.h"
 
-using Eigen::Vector3d;
+using namespace Eigen;
 using std::vector;
 
 namespace cspflux {
@@ -21,12 +21,14 @@ class heliostat {
  public:
   const driveAngles&
   GetDriveAngles() { return driveAngles; }
+  const Matrix3d&
+  GetHeliostatToEnuTransform();
 
   const Vector3d&
   GetFieldCoords() { return fieldCoords; }
 
   double
-  GetZOffset() { return zOffset; }
+  GetAimOffset() { return aimOffset; }
   double
   GetFocalLength() { return focalLength; }
   double
@@ -42,15 +44,19 @@ class heliostat {
   SetAzimuth(double azimuth) { driveAngles.azimuth = azimuth; }
   void
   SetElevation(double elevation) { driveAngles.elevation = elevation; }
+  void
+  SetHeliostatToEnuTransform(const Matrix3d& transform) { heliostatToEnuTransform = transform; }
 
   vector<facet> facets;
 
  private:
   const Vector3d fieldCoords;
-  const double zOffset;
+  const double aimOffset;
   const double focalLength;
 
   driveAngles driveAngles{1000, 1000};
+
+  Matrix3d heliostatToEnuTransform;
 
  protected:
   heliostat(double E, double N, double U, double Z, double F, int nRows, int nCols, double fGap);

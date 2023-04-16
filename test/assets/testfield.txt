@@ -1,4 +1,4 @@
-#e  n   u   zOffset     "focal length"
+#e  n   u   "aim Offset"     "focal length"
 11.72784939	129.6183538	0	-1	-1
 39.02070504	124.1605601	0	0	-1
 64.52893259	113.0242318	0	0	-1

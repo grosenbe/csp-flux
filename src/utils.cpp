@@ -47,13 +47,12 @@ cspflux::ConvertSpaDataToEnu(const spa_data &spaData) {
 
 Matrix3d
 cspflux::RotateAboutVector(const Vector3d &vec, double angle) {
-  if (!CompareDoubles(vec.norm(), 1))
-    throw std::runtime_error("Trying to rotate about an unnormalized vector");
+  auto normalized = vec.normalized();
 
   auto q0 = std::cos(angle / 2);
-  auto q1 = std::sin(angle / 2) * vec(0);
-  auto q2 = std::sin(angle / 2) * vec(1);
-  auto q3 = std::sin(angle / 2) * vec(2);
+  auto q1 = std::sin(angle / 2) * normalized(0);
+  auto q2 = std::sin(angle / 2) * normalized(1);
+  auto q3 = std::sin(angle / 2) * normalized(2);
 
   Matrix3d m;
   m(0, 0) = q1 * q1 - q2 * q2 - q3 * q3 + q0 * q0;
