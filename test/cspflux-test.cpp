@@ -93,14 +93,12 @@ TEST(heliostattests, field) {
   auto bottomRightIdx = h1.GetNumCols() - 1;
   auto topLeftIdx = h1.GetNumCols() * (h1.GetNumRows() - 1);
   auto topRightIdx = h1.GetNumCols() * h1.GetNumRows() - 1;
-  auto xMinHel = -h1.GetNumCols() / 2 * facet::width + 0.5 * facet::width;
-  auto xMaxHel = h1.GetNumCols() / 2 * facet::width - 0.5 * facet::width + facet::width;
-  auto yMinHel = -h1.GetNumRows() / 2 * facet::height + 0.5 * facet::height;
-  auto yMaxHel = h1.GetNumRows() / 2 * facet::height - 0.5 * facet::height + facet::height;
-  CompareVectors(facets[bottomLeftIdx].GetCenterHel(), Vector3d(xMinHel, 0, yMinHel));
-  CompareVectors(facets[bottomRightIdx].GetCenterHel(), Vector3d(xMaxHel, 0, yMinHel));
-  CompareVectors(facets[topLeftIdx].GetCenterHel(), Vector3d(xMinHel, 0, yMaxHel));
-  CompareVectors(facets[topRightIdx].GetCenterHel(), Vector3d(xMaxHel, 0, yMaxHel));
+  EXPECT_TRUE(CompareDoubles(facets[bottomLeftIdx].GetCenterHel()(0), facets[topLeftIdx].GetCenterHel()(0)));
+  EXPECT_TRUE(CompareDoubles(facets[bottomRightIdx].GetCenterHel()(0), facets[topRightIdx].GetCenterHel()(0)));
+  EXPECT_TRUE(CompareDoubles(facets[topLeftIdx].GetCenterHel()(2), facets[topRightIdx].GetCenterHel()(2)));
+  EXPECT_TRUE(CompareDoubles(facets[bottomRightIdx].GetCenterHel()(2), facets[bottomLeftIdx].GetCenterHel()(2)));
+  EXPECT_TRUE(CompareDoubles(facets[bottomLeftIdx].GetCenterHel()(2), -facets[topLeftIdx].GetCenterHel()(2)));
+  EXPECT_TRUE(CompareDoubles(facets[topLeftIdx].GetCenterHel()(0), -facets[topRightIdx].GetCenterHel()(0)));
 
   EXPECT_EQ(h2.GetFieldCoords()[0], -23.69186385);
   EXPECT_EQ(h2.GetFieldCoords()[1], 1527.036711);

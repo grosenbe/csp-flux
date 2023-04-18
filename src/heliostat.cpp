@@ -11,17 +11,20 @@ double heliostat::pedistalHeight = 10;
 
 heliostat::heliostat(double E, double N, double U, double Z, double F, int numRows, int numCols, double facetGap)
     : fieldCoords(Vector3d(E, N, U)), aimOffset(Z), focalLength(F), numRows(numRows), numCols(numCols), facetGap(facetGap) {
-  auto currentHeight = -GetNumRows() / 2 * facet::height + 0.5 * facet::height;
+  auto arrayHeight = GetNumRows() * facet::height + (GetNumRows() - 1) * facetGap;
+  auto arrayWidth = GetNumCols() * facet::width + (GetNumCols() - 1) * facetGap;
+
+  auto currentHeight = -1 * (arrayHeight / 2 - 0.5 * facet::height);
   for (auto row = 0; row < GetNumRows(); ++row) {
-    auto width = -GetNumCols() / 2 * facet::width + 0.5 * facet::width;
+    auto currentWidth = -1 * (arrayWidth / 2 - 0.5 * facet::width);
     for (auto col = 0; col < GetNumCols(); ++col) {
-      auto x = width;
+      auto x = currentWidth;
       auto y = 0;
       auto z = currentHeight;
       facets.push_back(facet(Vector3d(x, y, z)));
-      width += facet::width;
+      currentWidth += facet::width + facetGap;
     }
-    currentHeight += facet::height;
+    currentHeight += facet::height + facetGap;
   }
 }
 
