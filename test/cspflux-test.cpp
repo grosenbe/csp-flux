@@ -88,6 +88,20 @@ TEST(heliostattests, field) {
   EXPECT_EQ(h1.GetFocalLength(), -1);
   EXPECT_ANY_THROW(h1.GetHeliostatToEnuTransform());
 
+  const auto facets = h1.GetFacets();
+  auto bottomLeftIdx = 0;
+  auto bottomRightIdx = h1.GetNumCols() - 1;
+  auto topLeftIdx = h1.GetNumCols() * (h1.GetNumRows() - 1);
+  auto topRightIdx = h1.GetNumCols() * h1.GetNumRows() - 1;
+  auto xMinHel = -h1.GetNumCols() / 2 * facet::width + 0.5 * facet::width;
+  auto xMaxHel = h1.GetNumCols() / 2 * facet::width - 0.5 * facet::width + facet::width;
+  auto yMinHel = -h1.GetNumRows() / 2 * facet::height + 0.5 * facet::height;
+  auto yMaxHel = h1.GetNumRows() / 2 * facet::height - 0.5 * facet::height + facet::height;
+  CompareVectors(facets[bottomLeftIdx].GetCenterHel(), Vector3d(xMinHel, 0, yMinHel));
+  CompareVectors(facets[bottomRightIdx].GetCenterHel(), Vector3d(xMaxHel, 0, yMinHel));
+  CompareVectors(facets[topLeftIdx].GetCenterHel(), Vector3d(xMinHel, 0, yMaxHel));
+  CompareVectors(facets[topRightIdx].GetCenterHel(), Vector3d(xMaxHel, 0, yMaxHel));
+
   EXPECT_EQ(h2.GetFieldCoords()[0], -23.69186385);
   EXPECT_EQ(h2.GetFieldCoords()[1], 1527.036711);
   EXPECT_EQ(h2.GetFieldCoords()[2], 0);
@@ -95,12 +109,12 @@ TEST(heliostattests, field) {
   EXPECT_EQ(h2.GetFocalLength(), -1);
   EXPECT_ANY_THROW(h2.GetHeliostatToEnuTransform());
 
-  EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 0, 1), -1, 0));
-  EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 0, 1), 2, 1));
-  EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 0, 1), 0, 9332));
-  EXPECT_ANY_THROW(f.ComputeDriveAngles(Vector3d(0, 1, 1), 0, 9332));
+  EXPECT_ANY_THROW(f.ComputeHeliostatAndFacetTransforms(Vector3d(0, 0, 1), -1, 0));
+  EXPECT_ANY_THROW(f.ComputeHeliostatAndFacetTransforms(Vector3d(0, 0, 1), 2, 1));
+  EXPECT_ANY_THROW(f.ComputeHeliostatAndFacetTransforms(Vector3d(0, 0, 1), 0, 9332));
+  EXPECT_ANY_THROW(f.ComputeHeliostatAndFacetTransforms(Vector3d(0, 1, 1), 0, 9332));
 
-  f.ComputeDriveAngles(Vector3d(0, 0, 1), 0, f.GetSize() - 1);
+  f.ComputeHeliostatAndFacetTransforms(Vector3d(0, 0, 1), 0, f.GetSize() - 1);
   for (auto i = 0u; i < fieldSize; ++i) {
     EXPECT_TRUE(f.GetHeliostat(i).GetDriveAngles().azimuth >= 0);
     EXPECT_TRUE(f.GetHeliostat(i).GetDriveAngles().azimuth <= 360);
@@ -108,6 +122,35 @@ TEST(heliostattests, field) {
     EXPECT_TRUE(f.GetHeliostat(i).GetDriveAngles().elevation <= 180);
     f.GetHeliostat(i).GetHeliostatToEnuTransform();
   }
+}
+
+TEST(heliostattests, creates_transforms) {
+  field f("test/testfield.txt");
+  auto helio = f.GetHeliostat(1);
+
+  helio.ComputeTransforms(Vector3d(0, 0, 1));
+  EXPECT_GT(helio.GetDriveAngles().elevation, 89.809);
+  EXPECT_TRUE(CompareDoubles(helio.GetDriveAngles().azimuth, 180));
+}
+
+TEST(heliostattests, heliostat_creates_facets) {
+  heliostat_115m2 h(0, 0, 0, 0, -1);
+
+  EXPECT_EQ(h.GetFacets().size(), 35);
+}
+
+TEST(heliostattests, facet_sets_center_on_construction) {
+  Vector3d center(0, 0, 0);
+  auto f = facet(center);
+
+  EXPECT_ANY_THROW(f.GetNormalBasisEnu());
+  EXPECT_ANY_THROW(f.GetWidthBasisEnu());
+  EXPECT_ANY_THROW(f.GetHeightBasisEnu());
+
+  f.SetBasisVecs(Vector3d(0, 0, 0), Vector3d(1, 0, 0), Vector3d(0, 1, 0), Vector3d(0, 0, 1));
+  f.GetNormalBasisEnu();
+  f.GetWidthBasisEnu();
+  f.GetHeightBasisEnu();
 }
 
 TEST(utilstests, runSPA) {
@@ -141,8 +184,8 @@ TEST(utilstests, rotation) {
         -std::sin(angle), std::cos(angle), 0,
         0, 0, 1;
 
-    EXPECT_TRUE(RotateAboutVector(Vector3d(1, 0, 0), angle).isApprox(xRotMtx));
-    EXPECT_TRUE(RotateAboutVector(Vector3d(0, 1, 0), angle).isApprox(yRotMtx));
-    EXPECT_TRUE(RotateAboutVector(Vector3d(0, 0, 1), angle).isApprox(zRotMtx));
+    EXPECT_TRUE(RotationAboutVector(Vector3d(1, 0, 0), angle).isApprox(xRotMtx));
+    EXPECT_TRUE(RotationAboutVector(Vector3d(0, 1, 0), angle).isApprox(yRotMtx));
+    EXPECT_TRUE(RotationAboutVector(Vector3d(0, 0, 1), angle).isApprox(zRotMtx));
   }
 }

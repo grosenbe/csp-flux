@@ -33,7 +33,7 @@ field::field(const std::string &path) {
       std::getline(ss, tokens[index], '\t');
     }
 
-    heliostats.push_back(std::make_unique<heliostat_SR115>(stod(tokens[0]),
+    heliostats.push_back(std::make_unique<heliostat_115m2>(stod(tokens[0]),
                                                            stod(tokens[1]),
                                                            stod(tokens[2]),
                                                            stod(tokens[3]),
@@ -47,7 +47,7 @@ field::GetHeliostat(size_t heliostatIdx) {
 }
 
 void
-field::ComputeDriveAngles(const Vector3d &sun, size_t startIdx, size_t endIdx) {
+field::ComputeHeliostatAndFacetTransforms(const Vector3d &sun, size_t startIdx, size_t endIdx) {
   if (sun.norm() != 1)
     throw std::runtime_error("field::ComputeDriveAngles: pass a unit sun vector");
 
@@ -61,28 +61,6 @@ field::ComputeDriveAngles(const Vector3d &sun, size_t startIdx, size_t endIdx) {
     throw std::runtime_error("field::ComputeDriveAngles: start index greater than end index");
 
   for (size_t i = startIdx; i <= endIdx; ++i) {
-    auto &helio = heliostats[i];
-    auto e = helio->GetFieldCoords()[0];
-    auto n = helio->GetFieldCoords()[1];
-    auto fieldAz = std::atan2(n, e);
-
-    auto aimEnu = Vector3d(std::cos(fieldAz) * receiver.radius, std::sin(fieldAz) * receiver.radius, 0) + Vector3d(0, 0, tower::height + receiver::height * 0.5 + helio->GetAimOffset());
-    auto heliostatAzDrive = helio->GetFieldCoords() + Vector3d(0, 0, helio->pedistalHeight);
-    auto heliostatToAimPoint = aimEnu - heliostatAzDrive;
-
-    auto heliostatNormal = (heliostatToAimPoint.normalized() + sun).normalized();
-
-    auto elAngle = std::atan2(heliostatNormal(2), std::sqrt(std::pow(heliostatNormal(0), 2) + std::pow(heliostatNormal(1), 2)));
-
-    auto azAngle = std::atan2(heliostatNormal(0), heliostatNormal(1));
-    auto az = std::fmod(180 / PI * azAngle, 360.0);
-    if (az < 0) az += 360;
-    helio->SetAzimuth(az);
-    helio->SetElevation(std::fmod(180 / PI * elAngle, 360.0));
-
-    auto azRot = RotateAboutVector(Vector3d(0, 0, 1), helio->GetDriveAngles().azimuth * PI / 180);
-    auto rotatedElAxis = azRot * Vector3d(1, 0, 0);
-    auto elRot = RotateAboutVector(rotatedElAxis, -helio->GetDriveAngles().elevation * PI / 180);
-    helio->SetHeliostatToEnuTransform(elRot * azRot);
+    heliostats[i]->ComputeTransforms(sun);
   }
 }

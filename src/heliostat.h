@@ -37,6 +37,8 @@ class heliostat {
   GetNumRows() { return numRows; }
   int
   GetNumCols() { return numCols; }
+  const vector<facet>&
+  GetFacets() { return facets; }
 
   static double pedistalHeight;
 
@@ -47,9 +49,10 @@ class heliostat {
   void
   SetHeliostatToEnuTransform(const Matrix3d& transform) { heliostatToEnuTransform = transform; }
 
-  vector<facet> facets;
+  void ComputeTransforms(const Vector3d&);
 
  private:
+  vector<facet> facets;
   const Vector3d fieldCoords;
   const double aimOffset;
   const double focalLength;
@@ -66,9 +69,9 @@ class heliostat {
   const double facetGap;
 };
 
-class heliostat_SR115 : public heliostat {
+class heliostat_115m2 : public heliostat {
  public:
-  heliostat_SR115(double E, double N, double U, double Z, double F);
+  heliostat_115m2(double E, double N, double U, double Z, double F);
 
  private:
 };

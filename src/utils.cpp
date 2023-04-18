@@ -46,7 +46,7 @@ cspflux::ConvertSpaDataToEnu(const spa_data &spaData) {
 }
 
 Matrix3d
-cspflux::RotateAboutVector(const Vector3d &vec, double angle) {
+cspflux::RotationAboutVector(const Vector3d &vec, double angle) {
   auto normalized = vec.normalized();
 
   auto q0 = std::cos(angle / 2);

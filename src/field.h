@@ -14,12 +14,12 @@ using std::vector;
 namespace cspflux {
 
 struct tower {
-  static double height;  // [m]
+  static double height;
 };
 
 struct receiver {
-  static double height;  // [m]
-  static double radius;  // [m]
+  static double height;
+  static double radius;
 
   static int Num_Panels;
 };
@@ -32,7 +32,7 @@ class field {
   GetSize() { return heliostats.size(); }
 
   heliostat& GetHeliostat(size_t);
-  void ComputeDriveAngles(const Vector3d&, size_t, size_t);
+  void ComputeHeliostatAndFacetTransforms(const Vector3d&, size_t, size_t);
 
   tower tower;
   receiver receiver;
