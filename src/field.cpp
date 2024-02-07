@@ -24,6 +24,8 @@ field::field(const std::string &path) {
     throw std::runtime_error("Error: unable to open input file at " + path);
 
   std::string line;
+  auto ring = 0;
+  auto radiusLast = 0.;
   while (std::getline(ifs, line)) {
     if (line[0] == '#') continue;
 
@@ -32,12 +34,18 @@ field::field(const std::string &path) {
     for (auto index = 0u; index < 5; ++index) {
       std::getline(ss, tokens[index], '\t');
     }
-
-    heliostats.push_back(std::make_unique<heliostat_115m2>(stod(tokens[0]),
-                                                           stod(tokens[1]),
+    auto e = stod(tokens[0]);
+    auto n = stod(tokens[1]);
+    auto radius = std::sqrt(e * e + n * n);
+    if (radius > radiusLast + 1)
+      ++ring;
+    heliostats.push_back(std::make_unique<heliostat_115m2>(e,
+                                                           n,
                                                            stod(tokens[2]),
                                                            stod(tokens[3]),
-                                                           stod(tokens[4])));
+                                                           stod(tokens[4]),
+                                                           ring));
+    radiusLast = radius;
   }
 }
 

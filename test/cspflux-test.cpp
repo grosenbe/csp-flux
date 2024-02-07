@@ -52,12 +52,12 @@ TEST(utilstests, CompareDoubles) {
   EXPECT_FALSE(CompareDoubles(1, 2));
 }
 
-TEST(sunpointgeneratortests, limbdarkened) {
+TEST(sunpointgeneratortests, limbdarkened_between_0_and_465) {
   Vector3d sunCenter(0, 0, 1);
   auto generator = limbDarkenedSunPointGenerator(sunCenter);
 
   double maxAngle = 0;
-  double minAngle = std::numeric_limits<double>::min();
+  double minAngle = std::numeric_limits<double>::max();
   auto numPoints = 0u;
   while (numPoints++ < 10000) {
     auto p = generator.GenerateSunPoint();
@@ -67,8 +67,8 @@ TEST(sunpointgeneratortests, limbdarkened) {
     if (angle < minAngle)
       minAngle = angle;
   }
-  EXPECT_TRUE(CompareDoubles(maxAngle, 0.00465));
-  EXPECT_TRUE(CompareDoubles(minAngle, 0));
+  EXPECT_GT(maxAngle, 0.0045);
+  EXPECT_LT(minAngle, 0.00005);
 }
 
 TEST(heliostattests, field) {
@@ -86,7 +86,9 @@ TEST(heliostattests, field) {
   EXPECT_EQ(h1.GetFieldCoords()[2], 0);
   EXPECT_EQ(h1.GetAimOffset(), -1);
   EXPECT_EQ(h1.GetFocalLength(), -1);
+  EXPECT_EQ(h1.GetRing(), 1);
   EXPECT_ANY_THROW(h1.GetHeliostatToEnuTransform());
+  EXPECT_EQ(h2.GetRing(), 73);
 
   const auto facets = h1.GetFacets();
   auto bottomLeftIdx = 0;
@@ -132,7 +134,7 @@ TEST(heliostattests, creates_transforms) {
 }
 
 TEST(heliostattests, heliostat_creates_facets) {
-  heliostat_115m2 h(0, 0, 0, 0, -1);
+  heliostat_115m2 h(0, 0, 0, 0, -1, 0);
 
   EXPECT_EQ(h.GetFacets().size(), 35);
 }

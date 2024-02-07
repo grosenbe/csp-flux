@@ -20,4 +20,5 @@ sunPointGenerator::sunPointGenerator(const Vector3d &sunCenter)
   }
   sunCoordinateBasis[1].normalize();
   sunCoordinateBasis[2] = sunCoordinateBasis[0].cross(sunCoordinateBasis[1]);
+  sunCoordinateBasis[2].normalize();
 }

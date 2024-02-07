@@ -7,10 +7,14 @@
 
 using namespace cspflux;
 
-double heliostat::pedistalHeight = 10;
+double heliostat::pedestalHeight = 0;
+double heliostat::width = 0;
+double heliostat::height = 0;
+double heliostat::diagonal = 0;
+double heliostat::reflectiveArea = 0;
 
-heliostat::heliostat(double E, double N, double U, double Z, double F, int numRows, int numCols, double facetGap)
-    : fieldCoords(Vector3d(E, N, U)), aimOffset(Z), focalLength(F), numRows(numRows), numCols(numCols), facetGap(facetGap) {
+heliostat::heliostat(double E, double N, double U, double Z, double F, int numRows, int numCols, double facetGap, int ring)
+    : fieldCoords(Vector3d(E, N, U)), aimOffset(Z), focalLength(F), numRows(numRows), numCols(numCols), facetGap(facetGap), ring(ring) {
   auto arrayHeight = GetNumRows() * facet::height + (GetNumRows() - 1) * facetGap;
   auto arrayWidth = GetNumCols() * facet::width + (GetNumCols() - 1) * facetGap;
 
@@ -28,12 +32,17 @@ heliostat::heliostat(double E, double N, double U, double Z, double F, int numRo
   }
 }
 
-heliostat_115m2::heliostat_115m2(double E, double N, double U, double Z, double F)
-    : heliostat(E, N, U, Z, F, 5, 7, 0.0254) {
+heliostat_115m2::heliostat_115m2(double E, double N, double U, double Z, double F, int ring)
+    : heliostat(E, N, U, Z, F, 5, 7, 0.0254, ring) {
+  heliostat::pedestalHeight = 10;
+  heliostat::width = facet::width * numCols;
+  heliostat::height = facet::height * numRows;
+  heliostat::diagonal = std::sqrt(std::pow(heliostat::height, 2) + std::pow(heliostat::width, 2));
+  heliostat::reflectiveArea = heliostat::height * heliostat::width;
 }
 
 const Matrix3d&
-heliostat::GetHeliostatToEnuTransform() {
+heliostat::GetHeliostatToEnuTransform() const {
   if (GetDriveAngles().azimuth == 1000 && GetDriveAngles().elevation == 1000) {
     throw std::runtime_error("Cannot return heliostat to ENU transform before calculating drive angles");
   }
@@ -48,7 +57,7 @@ heliostat::ComputeTransforms(const Vector3d& sun) {
   auto fieldAz = std::atan2(n, e);
 
   auto aimEnu = Vector3d(std::cos(fieldAz) * receiver::radius, std::sin(fieldAz) * receiver::radius, 0) + Vector3d(0, 0, tower::height + receiver::height * 0.5 + GetAimOffset());
-  auto heliostatAzDrive = GetFieldCoords() + Vector3d(0, 0, pedistalHeight);
+  auto heliostatAzDrive = GetFieldCoords() + Vector3d(0, 0, pedestalHeight);
   auto heliostatToAimPoint = aimEnu - heliostatAzDrive;
 
   auto heliostatNormal = (heliostatToAimPoint.normalized() + sun).normalized();

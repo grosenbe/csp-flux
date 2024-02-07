@@ -20,27 +20,27 @@ struct driveAngles {
 class heliostat {
  public:
   const driveAngles&
-  GetDriveAngles() { return driveAngles; }
+  GetDriveAngles() const { return driveAngles; }
   const Matrix3d&
-  GetHeliostatToEnuTransform();
+  GetHeliostatToEnuTransform() const;
 
   const Vector3d&
-  GetFieldCoords() { return fieldCoords; }
+  GetFieldCoords() const { return fieldCoords; }
 
   double
-  GetAimOffset() { return aimOffset; }
+  GetAimOffset() const { return aimOffset; }
   double
-  GetFocalLength() { return focalLength; }
+  GetFocalLength() const { return focalLength; }
   double
-  GetFacetGap() { return facetGap; }
+  GetFacetGap() const { return facetGap; }
   int
-  GetNumRows() { return numRows; }
+  GetNumRows() const { return numRows; }
   int
-  GetNumCols() { return numCols; }
+  GetNumCols() const { return numCols; }
   const vector<facet>&
-  GetFacets() { return facets; }
-
-  static double pedistalHeight;
+  GetFacets() const { return facets; }
+  int
+  GetRing() const { return ring; }
 
   void
   SetAzimuth(double azimuth) { driveAngles.azimuth = azimuth; }
@@ -50,6 +50,13 @@ class heliostat {
   SetHeliostatToEnuTransform(const Matrix3d& transform) { heliostatToEnuTransform = transform; }
 
   void ComputeTransforms(const Vector3d&);
+
+  static double pedestalHeight;
+  static double width;
+  static double height;
+  static double diagonal;
+  static double reflectiveArea;
+  static double area;
 
  private:
   vector<facet> facets;
@@ -62,17 +69,16 @@ class heliostat {
   Matrix3d heliostatToEnuTransform;
 
  protected:
-  heliostat(double E, double N, double U, double Z, double F, int nRows, int nCols, double fGap);
+  heliostat(double E, double N, double U, double Z, double F, int nRows, int nCols, double fGap, int ring = 0);
 
   const int numRows;
   const int numCols;
   const double facetGap;
+  const int ring;
 };
 
 class heliostat_115m2 : public heliostat {
  public:
-  heliostat_115m2(double E, double N, double U, double Z, double F);
-
- private:
+  heliostat_115m2(double E, double N, double U, double Z, double F, int ring);
 };
 }  // namespace cspflux
