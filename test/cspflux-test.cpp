@@ -7,6 +7,7 @@
 #include "src/field.h"
 #include "src/limbDarkenedSunPointGenerator.h"
 #include "src/parameters.h"
+#include "src/pointSunPointGenerator.h"
 #include "src/utils.h"
 
 using namespace cspflux;
@@ -69,6 +70,14 @@ TEST(sunpointgeneratortests, limbdarkened_between_0_and_465) {
   }
   EXPECT_GT(maxAngle, 0.0045);
   EXPECT_LT(minAngle, 0.00005);
+}
+
+TEST(sunpointgeneratortests, pointSun) {
+  Vector3d sunCenter(0, 0, 1);
+  auto generator = pointSunPointGenerator(sunCenter);
+
+  auto sunPoint = generator.GenerateSunPoint();
+  EXPECT_EQ(sunPoint, sunCenter);
 }
 
 TEST(heliostattests, field) {

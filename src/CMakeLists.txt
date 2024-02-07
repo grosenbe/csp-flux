@@ -4,6 +4,7 @@ set(Sources
   facet.cpp
   limbDarkenedSunPointGenerator.cpp
   sunPointGenerator.cpp
+  pointSunPointGenerator.cpp
   tower.cpp
   utils.cpp)
 
